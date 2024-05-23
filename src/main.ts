@@ -3,6 +3,8 @@ import { Action, Docker, ImageTag, Input, Output, ResultsCheck } from './model';
 
 export async function run() {
   try {
+    core.error('Test Log');
+
     Action.checkCompatibility();
 
     const { workspace, actionFolder } = Action;

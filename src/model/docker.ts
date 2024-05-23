@@ -4,6 +4,7 @@ import LicensingServerSetup from './licensing-server-setup';
 import type { RunnerContext } from './action';
 import { exec } from '@actions/exec';
 import path from 'path';
+import * as core from '@actions/core';
 
 /**
  * Build a path for a docker --cidfile parameter. Docker will store the the created container.
@@ -48,6 +49,7 @@ const Docker = {
         throw new Error(`Operation system, ${process.platform}, is not supported yet.`);
     }
 
+    core.info(`About to call exec with: ${runCommand}`);
     await exec(runCommand, undefined, { silent });
   },
 
@@ -74,7 +76,7 @@ const Docker = {
       testMode === 'all' ? ['playmode', 'editmode', 'COMBINE_RESULTS'] : [testMode]
     ).join(';');
 
-    return `docker run \
+    const dockerCommand = `docker run \
             --workdir /github/workspace \
             --cidfile "${cidfile}" \
             --rm \
@@ -107,6 +109,8 @@ const Docker = {
             ${githubToken ? '--env USE_EXIT_CODE=false' : '--env USE_EXIT_CODE=true'} \
             ${image} \
             /bin/bash -c "/steps/entrypoint.sh`;
+    core.info(`Executing docker command: '${dockerCommand}'`);
+    return dockerCommand;
   },
 
   getWindowsCommand(image, parameters): string {
